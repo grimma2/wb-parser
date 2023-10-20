@@ -3,14 +3,32 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
+from selenium.common.exceptions import (
+    StaleElementReferenceException, NoSuchElementException, TimeoutException
+)
 
 import time
 
 
-def get_contacts_ooo(sellers: str, service) -> dict:
+def check_captcha_ooo(driver, service) -> webdriver.Chrome:
+    # была для изменения юзер агента и прокси
+    try:
+        print('captcha block')
+        driver.find_element(By.ID, 'challenge-form')
+        print('find captcha')
+        options = webdriver.ChromeOptions()
+
+        #options.add_argument(f'--proxy-server=http://{new_proxy}')
+        #print(str(rp.get_random_proxy()).split()[0])
+
+        return webdriver.Chrome(service=service, options=options)
+    except NoSuchElementException:
+        return
+
+
+def get_contacts_ooo(sellers: list[dict], service) -> dict:
+    URL = 'https://zachestnyibiznes.ru/company/ul/'
     driver = webdriver.Chrome(service=service)
-    driver.get('https://zachestnyibiznes.ru/lp/egrul_egrip/')
 
     for seller in sellers:
         search_value = str(seller['ogrn']).replace('.0', '')
@@ -19,17 +37,28 @@ def get_contacts_ooo(sellers: str, service) -> dict:
             sellers.remove(seller)
             continue
 
-        input_xpath = (By.XPATH, "//input[@class='aa-Input']")
-        result_xpath = (By.XPATH, "//ul[@class='aa-List'] and @role='listbox'")
+        contact_blocks = (By.XPATH, "//span[starts-with(@id, 'contact')]")
 
-        WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located(*input_xpath))
-        input_el = driver.find_element(*input_xpath)
-        input_el.send_keys(search_value)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located(*result_xpath))
-        result = driver.find_element(*result_xpath)
-        result.click()
+        driver.get(URL + search_value)
 
+        #if (result_driver := check_captcha_ooo(driver, service)):
+        #    driver = result_driver
 
+        try:
+            time.sleep(150)
+            WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located(contact_blocks))
+        except TimeoutException:
+            sellers.remove(seller)
+            continue
+
+        click_blocks = driver.find_elements(*contact_blocks)
+        click_blocks[0].click()
+        click_blocks = driver.find_elements(*contact_blocks)
+        seller['phone'] = click_blocks[0].text
+        predicted_emails = [contact.text for contact in click_blocks if '@' in contact.text]
+        seller['email'] = predicted_emails[0] if predicted_emails else ''
+
+    return sellers
 
 
 def get_email_ip(sellers: list[dict], service):
@@ -44,6 +73,10 @@ def get_email_ip(sellers: list[dict], service):
         if not search_value:
             sellers.remove(seller)
             continue
+
+        # для того, чтобы соеденить всё в 1 датафрейм
+        seller['email'] = ''
+        seller['phone'] = ''
 
         inputEl = driver.find_element(By.CLASS_NAME, 'field-data').find_element(By.TAG_NAME, 'input')
         inputEl.clear()

@@ -1,4 +1,6 @@
 from parser_utils.collect_wb import get_email_ip, get_contacts_ooo
+from parser_utils.recievers import read_pdfs
+
 from selenium import webdriver
 
 import pandas as pd
@@ -23,11 +25,11 @@ def main():
         else:
             pass
 
-    for i in OOOs + IPs:
-        print(i['name'], i['ogrn'] or i['ogrnip'])
-
+    # первая и вторая строчка парсят данные с разных сайтов
     #new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver.exe'))
-    #new_OOOs = get_contacts_ooo(OOOs, webdriver.ChromeService(executable_path='chromedriver.exe'))
+    #IPs_with_email = read_pdfs(IPs=new_IPs)
+    new_OOOs = get_contacts_ooo(OOOs, webdriver.ChromeService(executable_path='chromedriver.exe'))
+    pd.concat(new_OOOs, ignore_index=True).to_csv('final_sellers.csv')
 
 if __name__ == '__main__':
     main()

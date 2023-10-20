@@ -26,8 +26,8 @@ df = pd.DataFrame(data={
     "link": [],
 })
 
-from_ = 400000
-before = 500000
+from_ = 600000
+before = 1000000
 
 for seller_id in range(from_, before):
     print(seller_id)
@@ -45,4 +45,4 @@ for seller_id in range(from_, before):
     }
     df = pd.concat([df, pd.DataFrame(data=row)], ignore_index=True)
 
-df.to_csv('sellers_2.csv', index=False)
+df.to_csv('sellers_400k.csv', index=False)
