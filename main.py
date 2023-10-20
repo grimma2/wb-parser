@@ -10,7 +10,7 @@ OOO_text = 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕНН�
 IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
 
 def main():
-    sellers = pd.read_csv('sellers_true.csv').fillna('')
+    sellers = pd.read_csv('sellers_true.csv').fillna('').sample(n=10)
 
     OOOs = []
     IPs = []
@@ -26,10 +26,10 @@ def main():
             pass
 
     # первая и вторая строчка парсят данные с разных сайтов
-    #new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver.exe'))
-    #IPs_with_email = read_pdfs(IPs=new_IPs)
-    new_OOOs = get_contacts_ooo(OOOs, webdriver.ChromeService(executable_path='chromedriver.exe'))
-    pd.concat(new_OOOs, ignore_index=True).to_csv('final_sellers.csv')
+    new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver'))
+    #new_OOOs = get_contacts_ooo(OOOs, webdriver.ChromeService(executable_path='chromedriver'))
+    #pd.concat(new_OOOs, ignore_index=True).to_csv('final_sellers.csv')
+    print(new_IPs)
 
 if __name__ == '__main__':
     main()

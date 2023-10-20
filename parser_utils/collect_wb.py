@@ -1,3 +1,5 @@
+import glob
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -64,7 +66,12 @@ def get_contacts_ooo(sellers: list[dict], service) -> dict:
 
 
 def get_email_ip(sellers: list[dict], service):
-    driver = webdriver.Chrome(service=service)
+    chromeOptions = webdriver.ChromeOptions()
+
+    prefs = {"download.default_directory" : "../pdf_files"}
+    chromeOptions.add_experimental_option("prefs",prefs)
+
+    driver = webdriver.Chrome(service=service, options=chromeOptions)
     driver.get('https://egrul.nalog.ru/')
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'field-data')))
 
@@ -88,5 +95,12 @@ def get_email_ip(sellers: list[dict], service):
         time.sleep(.75)
         button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-with-icon') and contains(@class, 'btn-excerpt') and contains(@class, 'op-excerpt')]")
         button.click()
+        time.sleep(.5)
+
+        email = get_email_from_file(
+            pdf_file_path=glob.glob("../pdf_files/*.pdf")[0], 
+            text_file_path="../pdf_files/current_pdf_file.txt"
+        )
+        seller['email'] = email
 
     return sellers
