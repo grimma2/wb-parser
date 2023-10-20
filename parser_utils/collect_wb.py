@@ -7,6 +7,8 @@ from selenium.common.exceptions import (
     StaleElementReferenceException, NoSuchElementException, TimeoutException
 )
 
+from parser_utils.read_pdf import get_email_from_file
+
 import time
 
 
@@ -86,6 +88,5 @@ def get_email_ip(sellers: list[dict], service):
         time.sleep(.75)
         button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-with-icon') and contains(@class, 'btn-excerpt') and contains(@class, 'op-excerpt')]")
         button.click()
-        time.sleep(.5)
 
     return sellers
