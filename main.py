@@ -1,5 +1,4 @@
-from parser_utils.collect_wb import get_email_ip, get_contacts_ooo
-from parser_utils.recievers import read_pdfs
+from parser_utils.parse_contacts import get_email_ip, get_contacts_ooo
 
 from selenium import webdriver
 
@@ -10,12 +9,15 @@ OOO_text = 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕНН�
 IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
 
 def main():
-    sellers = pd.read_csv('sellers_true.csv').fillna('').sample(n=10)
+
+    sellers = pd.read_csv('sellers.csv').fillna('').loc[:100000]
+    print('a')
 
     OOOs = []
     IPs = []
 
     for _, row in sellers.iterrows():
+
         if 'name' not in row.keys():
             IPs.append(row.to_dict())
         elif 'ООО' in row['name'].upper() or OOO_text in row['name'].upper():
@@ -23,13 +25,17 @@ def main():
         elif 'ИП' in row['name'].upper() or IP_text in row['name'].upper():
             IPs.append(row.to_dict())
         else:
-            pass
+            IPs.append(row.to_dict())
+    print('b')
 
+    done_ooos = pd.read_csv(r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\ooo_with_contact.csv')
     # первая и вторая строчка парсят данные с разных сайтов
-    new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver'))
-    #new_OOOs = get_contacts_ooo(OOOs, webdriver.ChromeService(executable_path='chromedriver'))
-    #pd.concat(new_OOOs, ignore_index=True).to_csv('final_sellers.csv')
-    print(new_IPs)
+    #new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver.exe'))
+    get_contacts_ooo(
+        sellers=OOOs[len(done_ooos):],
+        service=webdriver.ChromeService(executable_path='chromedriver.exe')
+    )
+
 
 if __name__ == '__main__':
     main()
