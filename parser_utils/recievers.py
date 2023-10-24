@@ -1,9 +1,30 @@
 import pandas as pd
 
 
-d1 = pd.read_csv('sellers_2.csv')
-d2 = pd.read_csv('sellers_3.csv')
-d3 = pd.read_csv('sellers_400k.csv')
-d4 = pd.read_csv('sellers_true.csv')
+contacts = pd.read_csv(r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\ooo_with_contact.csv')
+revenues = pd.read_csv(r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\sellers_with_revenue.csv')
 
-pd.concat([d1, d2, d3, d4], ignore_index=True).to_csv('sellers.csv', index=False)
+
+a = {key: [] for key in contacts.keys()}
+a['revenues'] = []
+result = pd.DataFrame(a)
+count = 1
+for _, row in contacts.iterrows():
+    print(count)
+    count += 1
+    try:
+        this_row = revenues.loc[revenues['id'] == row['id']]
+    except:
+        continue
+
+    if this_row['revenues'].empty:
+        continue
+
+    this_row = this_row.to_dict()
+    this_row = {key: list(value.values())[0] for key, value in this_row.items()}
+    this_row['phone'] = row['phone']
+    this_row['email'] = row['email']
+    result.loc[len(result)] = this_row
+
+
+result.to_csv('test_ooos.csv')

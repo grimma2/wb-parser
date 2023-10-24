@@ -9,9 +9,11 @@ OOO_text = 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕНН�
 IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
 
 def main():
+    file_sellers = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\sellers_with_revenue.csv'
+    file_ooos = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\test_ooos.csv'
+    file_ips = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\ips_with_contacts.csv'
 
-    sellers = pd.read_csv('sellers.csv').fillna('').loc[:100000]
-    print('a')
+    sellers = pd.read_csv(file_sellers).fillna('')
 
     OOOs = []
     IPs = []
@@ -26,15 +28,23 @@ def main():
             IPs.append(row.to_dict())
         else:
             IPs.append(row.to_dict())
-    print('b')
 
-    done_ooos = pd.read_csv(r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\ooo_with_contact.csv')
+    done_ooos = pd.read_csv(file_ooos)
+    done_ips = pd.read_csv(file_ips)
+
     # первая и вторая строчка парсят данные с разных сайтов
-    #new_IPs = get_email_ip(IPs, webdriver.ChromeService(executable_path='chromedriver.exe'))
-    get_contacts_ooo(
+    new_IPs = get_email_ip(IPs[len(done_ips):], webdriver.ChromeService(executable_path='chromedriver.exe'), file_ips=file_ips)
+    try:
+        pd.DataFrame.from_records(new_IPs).to_csv(file_ips)
+    except Exception as e:
+        print(e)
+        print(new_IPs)
+
+    """     get_contacts_ooo(
         sellers=OOOs[len(done_ooos):],
-        service=webdriver.ChromeService(executable_path='chromedriver.exe')
-    )
+        service=webdriver.ChromeService(executable_path='chromedriver.exe'),
+        file_ooos=file_ooos
+    ) """
 
 
 if __name__ == '__main__':
