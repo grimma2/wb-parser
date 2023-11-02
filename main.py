@@ -1,4 +1,6 @@
 from parser_utils.parse_contacts import get_email_ip, get_contacts_ooo
+from parser_utils.fetch_last_rev import fetch_revenues
+from parser_utils.parser_names_increment import parse_sellers
 
 from selenium import webdriver
 
@@ -9,11 +11,11 @@ OOO_text = 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕНН�
 IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
 
 def main():
-    file_sellers = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\sellers_with_revenue.csv'
-    file_ooos = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\test_ooos.csv'
-    file_ips = r'C:\Users\anama\OneDrive\Документы\GitHub\wb-parser\parser_utils\ips_with_contacts.csv'
+    file_sellers = '<your_csv_file>'
+    file_ooos = '<your_csv_file>'
+    file_ips = '<your_csv_file>'
 
-    sellers = pd.read_csv(file_sellers).fillna('')
+    sellers = parse_sellers(file_sellers).fillna('')
 
     OOOs = []
     IPs = []
@@ -32,19 +34,19 @@ def main():
     done_ooos = pd.read_csv(file_ooos)
     done_ips = pd.read_csv(file_ips)
 
-    # первая и вторая строчка парсят данные с разных сайтов
-    new_IPs = get_email_ip(IPs[len(done_ips):], webdriver.ChromeService(executable_path='chromedriver.exe'), file_ips=file_ips)
-    try:
-        pd.DataFrame.from_records(new_IPs).to_csv(file_ips)
-    except Exception as e:
-        print(e)
-        print(new_IPs)
-
-    """     get_contacts_ooo(
+    get_email_ip(IPs[len(done_ips):], webdriver.ChromeService(executable_path='chromedriver.exe'), file_ips=file_ips)
+    get_contacts_ooo(
         sellers=OOOs[len(done_ooos):],
         service=webdriver.ChromeService(executable_path='chromedriver.exe'),
         file_ooos=file_ooos
-    ) """
+    )
+
+    ooos_with_contacts = pd.read_csv(file_ooos)
+    ips_with_contacts = pd.read_csv(file_ips)
+    sellers_with_contacts = pd.concat([ooos_with_contacts, ips_with_contacts])
+    sellers_with_contacts.to_csv('sellers.csv')
+    sellers = fetch_revenues(sellers_with_contacts)
+    sellers.drop_duplicates().drop(columns=['link', 'id', 'isUnknown']).to_csv('sellers.csv', index=False)
 
 
 if __name__ == '__main__':

@@ -9,6 +9,9 @@ parser_utils/ooo_with_contact.csv
 parser_utils/sellers_with_revenue.csv
 sellers.csv
 # Distribution / packaging
+test.py
+*.csv
+*.xlsx
 .Python
 build/
 develop-eggs/
