@@ -11,7 +11,7 @@ def get_seller_name(seller_id: int, headers) -> str:
         print(e)
 
 
-def parse_sellers(file_sellers: str) -> pd.DataFrame:
+def parse_sellers(file_sellers: str, from_, before) -> pd.DataFrame:
     df = pd.DataFrame(data={
         "link": [],
         "revenues": []
@@ -25,9 +25,6 @@ def parse_sellers(file_sellers: str) -> pd.DataFrame:
             'User-Agent': ua.random,
         }
     )
-
-    from_ = 0
-    before = 1000000
 
     for seller_id in range(from_, before):
         current_seller = get_seller_name(seller_id=seller_id, headers=headers)

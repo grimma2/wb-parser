@@ -103,7 +103,7 @@ def get_contacts_ooo(sellers: list[dict], service, file_ooos) -> dict:
 
 
 
-def get_email_ip(sellers: list[dict], service, file_ips):
+def get_email_ip(sellers: list[dict], service, file_ips, downloads_folder):
     URL = 'https://egrul.nalog.ru/'
     driver = get_finetuned_driver(service=service)
     driver.get(URL)
@@ -153,7 +153,7 @@ def get_email_ip(sellers: list[dict], service, file_ips):
 
         try:
             email = get_email_from_file(
-                pdf_file_path=glob.glob(r"C:\Users\anama\Downloads\*.pdf")[-1], 
+                pdf_file_path=glob.glob(rf"{downloads_folder}*.pdf")[-1], 
                 text_file_path="pdf_files/current_pdf_file.txt"
             )
         except IndexError:
