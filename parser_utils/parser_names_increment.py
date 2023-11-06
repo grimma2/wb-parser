@@ -11,7 +11,7 @@ def get_seller_name(seller_id: int, headers) -> str:
         print(e)
 
 
-def parse_sellers(file_sellers: str, from_, before) -> pd.DataFrame:
+def parse_sellers(file_sellers: str, from_, before, proxy) -> pd.DataFrame:
     df = pd.DataFrame(data={
         "link": [],
         "revenues": []
@@ -45,3 +45,4 @@ def parse_sellers(file_sellers: str, from_, before) -> pd.DataFrame:
     df.to_csv(file_sellers, index=False)
 
     return df
+

@@ -43,9 +43,8 @@ def get_finetuned_driver(service) -> webdriver.Chrome:
     return driver
 
 
-def get_contacts_ooo(sellers: list[dict], service, file_ooos) -> dict:
+def get_contacts_ooo(sellers: list[dict], driver, file_ooos) -> dict:
     URL = 'https://zachestnyibiznes.ru/company/ul/'
-    driver = get_finetuned_driver(service=service)
     count = 1
     keys = {key: [] for key in sellers[0]}
     keys.update({'phone': [], 'email': []})
@@ -103,15 +102,14 @@ def get_contacts_ooo(sellers: list[dict], service, file_ooos) -> dict:
 
 
 
-def get_email_ip(sellers: list[dict], service, file_ips, downloads_folder):
+def get_email_ip(sellers: list[dict], driver, file_ips, downloads_folder):
     URL = 'https://egrul.nalog.ru/'
-    driver = get_finetuned_driver(service=service)
     driver.get(URL)
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'field-data')))
 
     for seller in sellers:
         search_value = str(seller['ogrn']).replace('.0', '') or str(seller['ogrnip']).replace('.0', '')
-        
+
         if not search_value:
             sellers.remove(seller)
             continue
@@ -153,7 +151,7 @@ def get_email_ip(sellers: list[dict], service, file_ips, downloads_folder):
 
         try:
             email = get_email_from_file(
-                pdf_file_path=glob.glob(rf"{downloads_folder}*.pdf")[-1], 
+                pdf_file_path=glob.glob(rf"{downloads_folder}\*.pdf")[-1], 
                 text_file_path="pdf_files/current_pdf_file.txt"
             )
         except IndexError:
