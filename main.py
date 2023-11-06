@@ -2,7 +2,7 @@ from parser_utils.parse_contacts import get_email_ip, get_contacts_ooo
 from parser_utils.fetch_last_rev import fetch_revenues
 from parser_utils.parser_names_increment import parse_sellers
 
-from seleniumwire import webdriver
+from selenium import webdriver
 
 import pandas as pd
 
@@ -10,10 +10,10 @@ from multiprocessing import Process
 
 
 CONFIG = (
-    ('sellers_0k_50k.csv', 'ooos_0k_50k.csv', 'ips_0k_50k.csv', 'pdf_0k_50k', 0, 50000, {'login': '', 'password': '', 'host': ''}),
-    ('sellers_50k_100k.csv', 'ooos_50k_100k.csv', 'ips_50k_100k.csv', 'pdf_50k_100k', 0, 100000, {'login': '', 'password': '', 'host': ''}),
-    ('sellers_100k_150k.csv', 'ooos_100k_150k.csv', 'ips_100k_150k.csv', 'pdf_100k_150k', 0, 150000, {'login': '', 'password': '', 'host': ''}),
-    ('sellers_0k_50k.csv', 'ooos_150k_200k.csv', 'ips_150k_200k.csv', 'pdf_150k_200k', 0, 200000, {'login': '', 'password': '', 'host': ''})
+    ('sellers_0k_50k.csv', 'ooos_0k_50k.csv', 'ips_0k_50k.csv', '/home/anama2/wb-parser/pdf_0k_50k', 0, 50000, {'login': '', 'password': '', 'host': ''}),
+    ('sellers_50k_100k.csv', 'ooos_50k_100k.csv', 'ips_50k_100k.csv', '/home/anama2/wb-parser/pdf_50k_100k', 0, 100000, {'login': '', 'password': '', 'host': ''}),
+    ('sellers_100k_150k.csv', 'ooos_100k_150k.csv', 'ips_100k_150k.csv', '/home/anama2/wb-parser/pdf_100k_150k', 0, 150000, {'login': '', 'password': '', 'host': ''}),
+    ('sellers_0k_50k.csv', 'ooos_150k_200k.csv', 'ips_150k_200k.csv', '/home/anama2/wb-parser/pdf_150k_200k', 0, 200000, {'login': '', 'password': '', 'host': ''})
 )
 OOO_text = 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ'
 IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
@@ -22,7 +22,7 @@ IP_text = 'ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ'
 
 
 def parse_process(file_sellers, file_ooos, file_ips, downloads_folder, from_, before, proxy):
-    sellers = parse_sellers(file_sellers, from_, before).fillna('')
+    sellers = parse_sellers(file_sellers, from_, before, proxy=proxy).fillna('')
 
     OOOs = []
     IPs = []
@@ -53,11 +53,14 @@ def parse_process(file_sellers, file_ooos, file_ips, downloads_folder, from_, be
             'https': f'http://{proxy["login"]}:{proxy["password"]}@{proxy["host"]}'
         }
     }
+    options = webdriver.ChromeOptions()
+    prefs = {"download.default_directory": downloads_folder}
+    options.add_argument('prefs', prefs)
 
-    get_email_ip(IPs[len(done_ips):], webdriver.Chrome(seleniumwire_options=proxy_server), file_ips=file_ips, downloads_folder=downloads_folder)
+    get_email_ip(IPs[len(done_ips):], webdriver.Chrome(seleniumwire_options=proxy_server, options=options), file_ips=file_ips, downloads_folder=downloads_folder)
     get_contacts_ooo(
         sellers=OOOs[len(done_ooos):],
-        driver=webdriver.Chrome(),
+        driver=webdriver.Chrome(seleniumwire_options=proxy_server, options=options),
         file_ooos=file_ooos
     )
 
